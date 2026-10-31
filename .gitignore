@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.enc.json
+.kohaku-cache/
+coverage/
+*.log
+.DS_Store

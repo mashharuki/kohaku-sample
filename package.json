@@ -1,0 +1,37 @@
+{
+  "name": "kohaku-sample",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Kohaku SDK (Tornado Cash / Privacy Pools) Sepolia sample CLI",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "cli": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --project unit",
+    "test:e2e": "vitest run --project e2e",
+    "test:watch": "vitest --project unit",
+    "audit:kohaku": "python3 scripts/kohaku_audit.py src"
+  },
+  "dependencies": {
+    "@kohaku-eth/plugins": "0.0.1-alpha.20",
+    "@kohaku-eth/privacy-pools": "0.1.0-alpha.35",
+    "@kohaku-eth/provider": "0.1.0-alpha.14",
+    "@kohaku-eth/tornado-cash": "0.1.0-alpha.32",
+    "commander": "^12.1.0",
+    "dotenv": "^16.6.1",
+    "ox": "^0.12.4",
+    "viem": "^2.51.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@kohaku-eth/poseidon-lean-imt": "0.0.0",
+    "@types/node": "^22.10.0",
+    "prool": "^0.0.24",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
