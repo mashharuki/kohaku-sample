@@ -7,6 +7,19 @@ chunked-`getLogs` provider, and a public EOA wallet for shield/ragequit transact
 write command is a **dry run by default** — nothing is sent until you pass `--execute` and then
 type `yes` at the confirmation prompt.
 
+**What these protocols actually do**, in plain terms: you *shield* (deposit) ETH into a shared
+pool from your ordinary, public wallet — that deposit is visible on-chain. Later you *unshield*
+(withdraw) to a different address, proving with a zero-knowledge proof that you made some
+deposit into the pool without revealing which one; the recipient address is unlinkable to the
+depositor address. A **paymaster** sponsors the withdrawal's gas so the recipient doesn't need
+any ETH of its own (and doesn't need to send a transaction from a wallet that could link it back
+to you); the **bundler** is the ERC-4337 relayer that actually submits that sponsored
+transaction. Privacy Pools additionally requires each deposit to first be vetted by an
+**ASP** (Association Set Provider) before it can be privately withdrawn — until then it's
+*pending*, and the only way to get it back is **ragequit**: a *public* transaction straight back
+to the original depositor (no privacy, used as an emergency exit). Tornado Cash has no such
+vetting step but only accepts fixed deposit amounts (0.1/1/10/100 ETH, etc.).
+
 This is a sample, not a wallet. The packages it wraps are alpha and unaudited; read
 [`docs/pp-paymaster-mainnet-fork.md`](docs/pp-paymaster-mainnet-fork.md) and the error messages
 in [`src/privacy-pools/errors.ts`](src/privacy-pools/errors.ts) /
@@ -15,6 +28,8 @@ Tornado Cash's legal status varies by jurisdiction (it has been subject to sanct
 check what applies where you are before using the `tc:*` commands, even on testnet.
 
 ## Setup
+
+Requires Node >= 22.
 
 ```bash
 pnpm install
@@ -49,6 +64,21 @@ pnpm cli tc:unshield --to <address> --amount 0.1 [--strict] [--call-gas-ceiling 
 pnpm cli pp:shield --amount 0.01 [--execute]
 pnpm cli pp:balance
 pnpm cli pp:ragequit [--execute]
+```
+
+Every command is read-only or a dry run until you add `--execute`. For example,
+`pnpm cli pp:shield --amount 0.01` (no `--execute`) prints a plan and stops — nothing is signed
+or sent (numbers below are illustrative, not real quotes):
+
+```
+from: 0xYourAddress...
+deposit: 0.01 ETH
+vetting fee: 0.0001 ETH (bps=100)
+credited to note: 0.0099 ETH
+minimum deposit: 0.005 ETH
+(network gas for the deposit tx itself is on top of the above and is not shown here.)
+
+(dry run — nothing was sent. Re-run with --execute to send it for real.)
 ```
 
 Notes:
