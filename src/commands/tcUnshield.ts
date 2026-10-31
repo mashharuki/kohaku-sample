@@ -9,7 +9,7 @@ import { executeTcUnshield, previewTcUnshield } from '../tornado/unshield.js'
 import { confirmExecute, printDryRunNotice } from './shared/dryRun.js'
 import { formatWei, parseEthAmount } from './shared/format.js'
 
-type Options = { to: Hex; amount: string; strict: boolean; execute: boolean }
+type Options = { to: Hex; amount: string; strict: boolean; callGasCeiling?: string; execute: boolean }
 
 export async function runTcUnshield(opts: Options): Promise<void> {
   const env = loadEnv()
@@ -23,6 +23,9 @@ export async function runTcUnshield(opts: Options): Promise<void> {
   console.log(`recipient: ${preview.recipient}`)
   console.log(`amount: ${formatWei(preview.amountWei)} (paymaster-sponsored; recipient needs no ETH for gas)`)
   console.log(preview.note)
+  if (!opts.callGasCeiling) {
+    console.warn('warning: no --call-gas-ceiling set — an untrusted bundler could raise the sponsored fee up to what the note affords.')
+  }
 
   if (!opts.execute) {
     printDryRunNotice()
@@ -37,7 +40,10 @@ export async function runTcUnshield(opts: Options): Promise<void> {
     return
   }
 
-  const { fees, fallback, receipts } = await executeTcUnshield(host, tornado, opts.to, amountWei, { strict: opts.strict })
+  const { fees, fallback, receipts } = await executeTcUnshield(host, tornado, opts.to, amountWei, {
+    strict: opts.strict,
+    callGasCeiling: opts.callGasCeiling ? BigInt(opts.callGasCeiling) : undefined,
+  })
   console.log(`withdrawal fee(s): ${fees.map(formatWei).join(', ')}`)
   if (fallback) console.warn('warning: at least one withdrawal used fallback (unestimated) gas limits.')
   for (const r of receipts) console.log(`submitted: userOpHash=${r.id}`)

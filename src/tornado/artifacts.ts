@@ -24,6 +24,16 @@ function sha256Hex(data: Buffer): string {
   return createHash('sha256').update(data).digest('hex')
 }
 
+/**
+ * `Buffer.buffer` is the whole underlying ArrayBuffer, not just this Buffer's view into it —
+ * for a small Buffer (e.g. one decoded from base64), Node allocates it from an internal 8 KiB
+ * pool, so `.buffer` would otherwise return that entire pool chunk (unrelated heap bytes
+ * included) instead of just the proving key.
+ */
+function toOwnArrayBuffer(buf: Buffer): ArrayBuffer {
+  return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength).slice().buffer
+}
+
 function verify(label: string, data: Buffer, expectedHex: string) {
   const actual = sha256Hex(data)
   if (actual !== expectedHex) {
@@ -40,7 +50,7 @@ export function makeCachedArtifactsLoader(host: Host, cachePath: string): () => 
   return async () => {
     if (existsSync(cachePath)) {
       const cached = JSON.parse(readFileSync(cachePath, 'utf8')) as CacheFile
-      return { circuitText: cached.circuitText, provingKey: Buffer.from(cached.provingKeyBase64, 'base64').buffer }
+      return { circuitText: cached.circuitText, provingKey: toOwnArrayBuffer(Buffer.from(cached.provingKeyBase64, 'base64')) }
     }
 
     const [circuitRes, provingKeyRes] = await Promise.all([host.network.fetch(CIRCUIT_URL), host.network.fetch(PROVING_KEY_URL)])
@@ -56,6 +66,6 @@ export function makeCachedArtifactsLoader(host: Host, cachePath: string): () => 
     mkdirSync(dirname(cachePath), { recursive: true })
     writeFileSync(cachePath, JSON.stringify({ circuitText, provingKeyBase64: provingKeyBuf.toString('base64') } satisfies CacheFile))
 
-    return { circuitText, provingKey: provingKeyBuf.buffer }
+    return { circuitText, provingKey: toOwnArrayBuffer(provingKeyBuf) }
   }
 }

@@ -29,6 +29,7 @@ program
   .requiredOption('--to <address>', 'recipient address')
   .option('--amount <eth>', 'amount in ETH', '0.1')
   .option('--strict', 'require a real gas estimate (gasEstimationPolicy: required)', false)
+  .option('--call-gas-ceiling <gas>', 'cap the paymaster-sponsored callGasLimit (an untrusted bundler can otherwise raise the fee up to what the note affords)')
   .option('--execute', 'actually send the withdrawal', false)
   .action(runTcUnshield)
 
