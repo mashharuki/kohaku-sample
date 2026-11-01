@@ -1,7 +1,7 @@
 import { sepolia } from 'viem/chains'
+import { makePublicWallet } from '../chain/wallet.js'
 import { loadEnv } from '../config/env.js'
 import { PP_STORAGE_PATH, TC_STORAGE_PATH } from '../config/paths.js'
-import { makePublicWallet } from '../chain/wallet.js'
 import { makeHost, makeNodeProvider } from '../host/createHost.js'
 import { formatWei } from './shared/format.js'
 
@@ -21,7 +21,13 @@ export async function runStatus(): Promise<void> {
     ['Tornado Cash', TC_STORAGE_PATH],
     ['Privacy Pools', PP_STORAGE_PATH],
   ] as const) {
-    const host = makeHost({ provider, chain: sepolia, mnemonic: env.MNEMONIC, storagePath: path, password: env.STORAGE_PASSWORD })
+    const host = makeHost({
+      provider,
+      chain: sepolia,
+      mnemonic: env.MNEMONIC,
+      storagePath: path,
+      password: env.STORAGE_PASSWORD,
+    })
     await host.storage.set('status-check', '1')
     console.log(`${label} storage OK: ${path}`)
   }

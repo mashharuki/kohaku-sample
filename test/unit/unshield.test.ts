@@ -26,7 +26,10 @@ describe('executeTcUnshield', () => {
   it('requests paymaster mode with deterministic delegation, and returns fees/fallback/receipts', async () => {
     const { executeTcUnshield } = await import('../../src/tornado/unshield.js')
     const prepareUnshield = vi.fn(async () => ({
-      withdrawals: [{ fee: 5n, gasEstimation: { status: 'ok' } }, { fee: 3n, gasEstimation: { status: 'fallback' } }],
+      withdrawals: [
+        { fee: 5n, gasEstimation: { status: 'ok' } },
+        { fee: 3n, gasEstimation: { status: 'fallback' } },
+      ],
     }))
     broadcastMock.mockResolvedValue(['receipt-1'])
     const tornado = { prepareUnshield } as unknown as Parameters<typeof executeTcUnshield>[1]
@@ -37,7 +40,11 @@ describe('executeTcUnshield', () => {
     expect(prepareUnshield).toHaveBeenCalledWith(
       expect.anything(),
       '0xabc',
-      expect.objectContaining({ mode: 'paymaster', delegation: { mode: 'deterministic' }, gasEstimationPolicy: 'best-effort' }),
+      expect.objectContaining({
+        mode: 'paymaster',
+        delegation: { mode: 'deterministic' },
+        gasEstimationPolicy: 'best-effort',
+      }),
     )
     expect(result).toEqual({ fees: [5n, 3n], fallback: true, receipts: ['receipt-1'] })
   })
@@ -51,7 +58,11 @@ describe('executeTcUnshield', () => {
 
     await executeTcUnshield(host, tornado, '0xabc', 100n, { strict: true })
 
-    expect(prepareUnshield).toHaveBeenCalledWith(expect.anything(), '0xabc', expect.objectContaining({ gasEstimationPolicy: 'required' }))
+    expect(prepareUnshield).toHaveBeenCalledWith(
+      expect.anything(),
+      '0xabc',
+      expect.objectContaining({ gasEstimationPolicy: 'required' }),
+    )
   })
 
   it('maps SDK errors through toTornadoUserError', async () => {

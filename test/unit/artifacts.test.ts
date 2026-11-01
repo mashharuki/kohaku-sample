@@ -57,11 +57,16 @@ describe('makeCachedArtifactsLoader', () => {
     })
     const loader = makeCachedArtifactsLoader(host, cachePath)
     await expect(loader()).rejects.toThrow() // wrong hash, but that's fine — we're asserting the channel used
-    expect(host.network.fetch).toHaveBeenCalledWith(expect.stringContaining('raw.githubusercontent.com'))
+    expect(host.network.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('raw.githubusercontent.com'),
+    )
   })
 
   it('serves from the local cache on a later call without fetching again', async () => {
-    const seeded = { circuitText: 'cached-circuit', provingKeyBase64: Buffer.from('cached-key').toString('base64') }
+    const seeded = {
+      circuitText: 'cached-circuit',
+      provingKeyBase64: Buffer.from('cached-key').toString('base64'),
+    }
     writeFileSync(cachePath, JSON.stringify(seeded))
 
     const fetchImpl = vi.fn()

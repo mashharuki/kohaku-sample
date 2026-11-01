@@ -8,7 +8,9 @@ export async function confirmExecute(summary: string): Promise<boolean> {
   console.log(summary)
   const rl = createInterface({ input: process.stdin, output: process.stdout })
   try {
-    const answer = await rl.question('\nType "yes" to send this to Sepolia, anything else to abort: ')
+    const answer = await rl.question(
+      '\nType "yes" to send this to Sepolia, anything else to abort: ',
+    )
     return answer.trim().toLowerCase() === 'yes'
   } finally {
     rl.close()

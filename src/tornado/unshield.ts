@@ -19,7 +19,13 @@ export function previewTcUnshield(recipient: Hex, amountWei: bigint): TcUnshield
   }
 }
 
-export async function executeTcUnshield(host: Host, t: Tornado, recipient: Hex, amountWei: bigint, opts: { strict?: boolean; callGasCeiling?: bigint }) {
+export async function executeTcUnshield(
+  host: Host,
+  t: Tornado,
+  recipient: Hex,
+  amountWei: bigint,
+  opts: { strict?: boolean; callGasCeiling?: bigint },
+) {
   try {
     const gasEstimationPolicy: GasEstimationPolicy = opts.strict ? 'required' : 'best-effort'
     const op = await t.prepareUnshield(ethAmount(amountWei), recipient, {

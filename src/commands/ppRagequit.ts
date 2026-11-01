@@ -1,7 +1,7 @@
 import { sepolia } from 'viem/chains'
+import { makePublicWallet, makeSendAndWait } from '../chain/wallet.js'
 import { loadEnv } from '../config/env.js'
 import { PP_STORAGE_PATH } from '../config/paths.js'
-import { makePublicWallet, makeSendAndWait } from '../chain/wallet.js'
 import { makeHost, makeNodeProvider } from '../host/createHost.js'
 import { createPools } from '../privacy-pools/plugin.js'
 import { executeRagequit, planRagequit } from '../privacy-pools/ragequit.js'
@@ -14,7 +14,13 @@ export async function runPpRagequit(opts: Options): Promise<void> {
   const env = loadEnv()
   const provider = await makeNodeProvider({ rpcUrl: env.SEPOLIA_RPC_URL, chain: sepolia })
   const { address, signer } = makePublicWallet(env.MNEMONIC, sepolia, env.SEPOLIA_RPC_URL)
-  const host = makeHost({ provider, chain: sepolia, mnemonic: env.MNEMONIC, storagePath: PP_STORAGE_PATH, password: env.STORAGE_PASSWORD })
+  const host = makeHost({
+    provider,
+    chain: sepolia,
+    mnemonic: env.MNEMONIC,
+    storagePath: PP_STORAGE_PATH,
+    password: env.STORAGE_PASSWORD,
+  })
   const pools = createPools(host, 11155111)
 
   console.log(
@@ -37,7 +43,9 @@ export async function runPpRagequit(opts: Options): Promise<void> {
     return
   }
 
-  const ok = await confirmExecute(`About to publicly ragequit ${plan.pendingNotes.length} note(s) back to ${address}.`)
+  const ok = await confirmExecute(
+    `About to publicly ragequit ${plan.pendingNotes.length} note(s) back to ${address}.`,
+  )
   if (!ok) {
     console.log('Aborted.')
     return

@@ -14,7 +14,8 @@ export type TornadoArtifacts = { circuitText: string; provingKey: ArrayBuffer }
 // host.network.fetch instead, so the one-time download is allowlisted and auditable, and we
 // cache the bytes locally afterwards so it only ever happens once. If a future SDK release
 // re-pins a different commit, the sha256 check below still catches any mismatch loudly.
-const BASE_URL = 'https://raw.githubusercontent.com/tornadocash/tornado-cli/378ddf8b8b92a4924037d7b64a94dbfd5a7dd6e8/build/circuits'
+const BASE_URL =
+  'https://raw.githubusercontent.com/tornadocash/tornado-cli/378ddf8b8b92a4924037d7b64a94dbfd5a7dd6e8/build/circuits'
 const CIRCUIT_URL = `${BASE_URL}/tornado.json`
 const PROVING_KEY_URL = `${BASE_URL}/tornadoProvingKey.bin`
 
@@ -37,7 +38,9 @@ function toOwnArrayBuffer(buf: Buffer): ArrayBuffer {
 function verify(label: string, data: Buffer, expectedHex: string) {
   const actual = sha256Hex(data)
   if (actual !== expectedHex) {
-    throw new Error(`${label} failed integrity check: expected sha256 ${expectedHex}, got ${actual}. Refusing to use it.`)
+    throw new Error(
+      `${label} failed integrity check: expected sha256 ${expectedHex}, got ${actual}. Refusing to use it.`,
+    )
   }
 }
 
@@ -46,16 +49,27 @@ function verify(label: string, data: Buffer, expectedHex: string) {
  * them against the SDK's own TORNADO_CIRCUIT_SHA256 / TORNADO_PROVING_KEY_SHA256 constants,
  * and caches them locally (cachePath) for every later run.
  */
-export function makeCachedArtifactsLoader(host: Host, cachePath: string): () => Promise<TornadoArtifacts> {
+export function makeCachedArtifactsLoader(
+  host: Host,
+  cachePath: string,
+): () => Promise<TornadoArtifacts> {
   return async () => {
     if (existsSync(cachePath)) {
       const cached = JSON.parse(readFileSync(cachePath, 'utf8')) as CacheFile
-      return { circuitText: cached.circuitText, provingKey: toOwnArrayBuffer(Buffer.from(cached.provingKeyBase64, 'base64')) }
+      return {
+        circuitText: cached.circuitText,
+        provingKey: toOwnArrayBuffer(Buffer.from(cached.provingKeyBase64, 'base64')),
+      }
     }
 
-    const [circuitRes, provingKeyRes] = await Promise.all([host.network.fetch(CIRCUIT_URL), host.network.fetch(PROVING_KEY_URL)])
-    if (!circuitRes.ok) throw new Error(`Failed to fetch Tornado circuit: HTTP ${circuitRes.status}`)
-    if (!provingKeyRes.ok) throw new Error(`Failed to fetch Tornado proving key: HTTP ${provingKeyRes.status}`)
+    const [circuitRes, provingKeyRes] = await Promise.all([
+      host.network.fetch(CIRCUIT_URL),
+      host.network.fetch(PROVING_KEY_URL),
+    ])
+    if (!circuitRes.ok)
+      throw new Error(`Failed to fetch Tornado circuit: HTTP ${circuitRes.status}`)
+    if (!provingKeyRes.ok)
+      throw new Error(`Failed to fetch Tornado proving key: HTTP ${provingKeyRes.status}`)
 
     const circuitText = await circuitRes.text()
     const provingKeyBuf = Buffer.from(await provingKeyRes.arrayBuffer())
@@ -64,7 +78,13 @@ export function makeCachedArtifactsLoader(host: Host, cachePath: string): () => 
     verify('Tornado proving key', provingKeyBuf, TORNADO_PROVING_KEY_SHA256)
 
     mkdirSync(dirname(cachePath), { recursive: true })
-    writeFileSync(cachePath, JSON.stringify({ circuitText, provingKeyBase64: provingKeyBuf.toString('base64') } satisfies CacheFile))
+    writeFileSync(
+      cachePath,
+      JSON.stringify({
+        circuitText,
+        provingKeyBase64: provingKeyBuf.toString('base64'),
+      } satisfies CacheFile),
+    )
 
     return { circuitText, provingKey: toOwnArrayBuffer(provingKeyBuf) }
   }

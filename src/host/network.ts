@@ -4,7 +4,10 @@ import type { Host } from '@kohaku-eth/plugins'
  * Allowlisted host.network.fetch. Returns real 4xx/5xx Responses as-is (plugins check
  * response.ok themselves); only throws when a host is blocked or the request itself fails.
  */
-export function makeNetwork(allowedHosts: readonly string[], baseFetch: typeof fetch = globalThis.fetch): Host['network'] {
+export function makeNetwork(
+  allowedHosts: readonly string[],
+  baseFetch: typeof fetch = globalThis.fetch,
+): Host['network'] {
   const allowed = new Set(allowedHosts)
   return {
     async fetch(input, init) {

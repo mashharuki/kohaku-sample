@@ -1,7 +1,7 @@
 import type { TxData } from '@kohaku-eth/provider'
 import { describe, expect, it, vi } from 'vitest'
-import { executeRagequit, planRagequit } from '../../src/privacy-pools/ragequit.js'
 import type { Pools } from '../../src/privacy-pools/plugin.js'
+import { executeRagequit, planRagequit } from '../../src/privacy-pools/ragequit.js'
 
 function mockPools(notes: { label: bigint; approved: boolean }[], ragequitTxns: TxData[] = []) {
   return {
@@ -64,6 +64,8 @@ describe('executeRagequit', () => {
   it('throws on a reverted tx', async () => {
     const txns = [{ to: '0x1' }] as unknown as TxData[]
     const sendAndWait = vi.fn().mockResolvedValueOnce({ hash: '0x1', status: 0n })
-    await expect(executeRagequit({ pendingNotes: [], txns }, sendAndWait)).rejects.toThrow(/reverted/)
+    await expect(executeRagequit({ pendingNotes: [], txns }, sendAndWait)).rejects.toThrow(
+      /reverted/,
+    )
   })
 })

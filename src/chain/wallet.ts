@@ -1,7 +1,7 @@
-import { ViemSignerAdapter } from '@kohaku-eth/provider/viem'
 import type { EthereumProvider, TxData } from '@kohaku-eth/provider'
+import { ViemSignerAdapter } from '@kohaku-eth/provider/viem'
+import { type Chain, createWalletClient, type Hex, http } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
-import { createWalletClient, http, type Chain, type Hex } from 'viem'
 
 /**
  * The "public" signer used for shield deposits and PP ragequit — ordinary, visible-on-chain
@@ -20,12 +20,16 @@ export function makePublicWallet(mnemonic: string, chain: Chain, rpcUrl: string)
 export type SendAndWait = (tx: TxData) => Promise<{ hash: Hex; status: bigint }>
 
 /** Sends one tx and waits for its receipt, returning the receipt status (1n = success). */
-export function makeSendAndWait(provider: EthereumProvider, signer: ViemSignerAdapter): SendAndWait {
+export function makeSendAndWait(
+  provider: EthereumProvider,
+  signer: ViemSignerAdapter,
+): SendAndWait {
   return async (tx: TxData) => {
     const hash = (await signer.sendTransaction(tx)) as Hex
     await provider.waitForTransaction(hash)
     const receipt = await provider.getTransactionReceipt(hash)
-    if (!receipt) throw new Error(`No receipt found for tx ${hash} after waitForTransaction resolved`)
+    if (!receipt)
+      throw new Error(`No receipt found for tx ${hash} after waitForTransaction resolved`)
     return { hash, status: receipt.status }
   }
 }

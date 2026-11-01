@@ -17,7 +17,9 @@ afterEach(() => {
 
 describe('makeEncryptedFileStorage', () => {
   it('rejects an empty password', () => {
-    expect(() => makeEncryptedFileStorage(join(dir, 'store.enc.json'), '')).toThrow(/empty password/)
+    expect(() => makeEncryptedFileStorage(join(dir, 'store.enc.json'), '')).toThrow(
+      /empty password/,
+    )
   })
 
   it('returns null for a missing key and round-trips a value within one instance', async () => {

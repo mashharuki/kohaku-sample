@@ -45,7 +45,11 @@ describe('makeNetwork', () => {
   it('accepts URL and Request inputs, matching on host', async () => {
     const base = fakeFetch({ 'https://ipfs.filebase.io/a': new Response('a') })
     const network = makeNetwork(['ipfs.filebase.io'], base)
-    await expect(network.fetch(new URL('https://ipfs.filebase.io/a'))).resolves.toBeInstanceOf(Response)
-    await expect(network.fetch(new Request('https://ipfs.filebase.io/a'))).resolves.toBeInstanceOf(Response)
+    await expect(network.fetch(new URL('https://ipfs.filebase.io/a'))).resolves.toBeInstanceOf(
+      Response,
+    )
+    await expect(network.fetch(new Request('https://ipfs.filebase.io/a'))).resolves.toBeInstanceOf(
+      Response,
+    )
   })
 })

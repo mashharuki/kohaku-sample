@@ -21,7 +21,9 @@ describe('MnemonicKeystore', () => {
 describe('scopeKeystore', () => {
   it('refuses paths outside the plugin prefix', async () => {
     const scoped = scopeKeystore(new MnemonicKeystore(TEST_MNEMONIC), { prefixes: ["m/29795'/1'"] })
-    await expect(scoped.deriveAt("m/44'/60'/0'/0/0")).rejects.toBeInstanceOf(KeystorePathNotAllowedError)
+    await expect(scoped.deriveAt("m/44'/60'/0'/0/0")).rejects.toBeInstanceOf(
+      KeystorePathNotAllowedError,
+    )
   })
 
   it('allows paths under the scoped prefix', async () => {

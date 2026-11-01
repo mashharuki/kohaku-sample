@@ -27,8 +27,13 @@ async function fetchLatestBlockNumber(rpcUrl: string): Promise<bigint> {
  * races the test's own first request (observed ~1-in-3 as a bare 400 from the proxy); hitting
  * the pool's own `/<id>/start` endpoint first and awaiting its response avoids that race.
  */
-export async function startAnvilFork(opts: { forkUrl: string; forkBlockNumber?: bigint; chainId?: number }): Promise<AnvilFork> {
-  const forkBlockNumber = opts.forkBlockNumber ?? (await fetchLatestBlockNumber(opts.forkUrl)) - HEAD_SAFETY_MARGIN
+export async function startAnvilFork(opts: {
+  forkUrl: string
+  forkBlockNumber?: bigint
+  chainId?: number
+}): Promise<AnvilFork> {
+  const forkBlockNumber =
+    opts.forkBlockNumber ?? (await fetchLatestBlockNumber(opts.forkUrl)) - HEAD_SAFETY_MARGIN
 
   const server = createServer({
     port: 0,
@@ -43,7 +48,10 @@ export async function startAnvilFork(opts: { forkUrl: string; forkBlockNumber?: 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const res = await fetch(`${base}/1/start`)
     if (res.ok) break
-    if (attempt === maxAttempts) throw new Error(`anvil fork failed to start after ${maxAttempts} attempts: ${await res.text()}`)
+    if (attempt === maxAttempts)
+      throw new Error(
+        `anvil fork failed to start after ${maxAttempts} attempts: ${await res.text()}`,
+      )
   }
 
   return {

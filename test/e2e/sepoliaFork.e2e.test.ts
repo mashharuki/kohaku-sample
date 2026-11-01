@@ -5,7 +5,7 @@
 import { sepolia } from 'viem/chains'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { makeNodeProvider } from '../../src/host/createHost.js'
-import { startAnvilFork, type AnvilFork } from './utils/anvil.js'
+import { type AnvilFork, startAnvilFork } from './utils/anvil.js'
 
 const FORK_RPC_URL = process.env.ANVIL_FORK_RPC_URL
 const FORK_BLOCK = process.env.ANVIL_FORK_BLOCK ? BigInt(process.env.ANVIL_FORK_BLOCK) : undefined
@@ -21,7 +21,7 @@ describe.skipIf(!FORK_RPC_URL)('Sepolia fork (anvil)', () => {
     await fork?.stop()
   })
 
-  it('the forked chain reports Sepolia\'s chain id, and makeNodeProvider accepts it', async () => {
+  it("the forked chain reports Sepolia's chain id, and makeNodeProvider accepts it", async () => {
     const provider = await makeNodeProvider({ rpcUrl: fork.rpcUrl, chain: sepolia })
     expect(await provider.getChainId()).toBe(11155111n)
   })
@@ -39,7 +39,10 @@ describe.skipIf(!FORK_RPC_URL)('Sepolia fork (anvil)', () => {
 
     // forkHead itself is a real, already-mined Sepolia block (may have real logs); only the
     // blocks mined just above it are guaranteed empty.
-    const logs = await provider.getLogs({ fromBlock: forkHead + 1n, toBlock: forkHead + BigInt(blocksToMine) })
+    const logs = await provider.getLogs({
+      fromBlock: forkHead + 1n,
+      toBlock: forkHead + BigInt(blocksToMine),
+    })
     expect(logs).toEqual([])
   })
 })

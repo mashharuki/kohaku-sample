@@ -13,10 +13,7 @@ function mockPools(rows: { tag?: string; amount: bigint }[]) {
 
 describe('getPpBalanceAndNotes', () => {
   it('syncs before reading, and separates approved from pending by tag', async () => {
-    const pools = mockPools([
-      { amount: 7n },
-      { tag: 'pending', amount: 3n },
-    ])
+    const pools = mockPools([{ amount: 7n }, { tag: 'pending', amount: 3n }])
     const result = await getPpBalanceAndNotes(pools)
     expect(pools.sync).toHaveBeenCalledTimes(1)
     expect(result.approved).toBe(7n)

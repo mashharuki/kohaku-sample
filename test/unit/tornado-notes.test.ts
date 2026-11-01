@@ -7,7 +7,10 @@ describe('getTcBalanceAndNotes', () => {
     const tornado = {
       sync: vi.fn(async () => undefined),
       balance: vi.fn(async () => [{ amount: 1n }]),
-      notes: vi.fn(async () => [{ assetAddress: 0n, nullifier: 'a' }, { assetAddress: 123n, nullifier: 'b' }]),
+      notes: vi.fn(async () => [
+        { assetAddress: 0n, nullifier: 'a' },
+        { assetAddress: 123n, nullifier: 'b' },
+      ]),
     } as unknown as Tornado
 
     const result = await getTcBalanceAndNotes(tornado)

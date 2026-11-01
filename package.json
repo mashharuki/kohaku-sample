@@ -10,6 +10,11 @@
   "scripts": {
     "cli": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "test": "vitest run --project unit",
     "test:e2e": "vitest run --project e2e",
     "test:watch": "vitest --project unit",
@@ -27,6 +32,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.4",
     "@kohaku-eth/poseidon-lean-imt": "0.0.0",
     "@types/node": "^22.10.0",
     "prool": "^0.0.24",

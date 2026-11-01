@@ -2,12 +2,14 @@ import type { PPv1ShieldEstimate } from '@kohaku-eth/privacy-pools'
 import type { TxData } from '@kohaku-eth/provider'
 import { describe, expect, it, vi } from 'vitest'
 import type { SendAndWait } from '../../src/chain/wallet.js'
-import { executePpShield, planPpShield } from '../../src/privacy-pools/shield.js'
 import type { Pools } from '../../src/privacy-pools/plugin.js'
+import { executePpShield, planPpShield } from '../../src/privacy-pools/shield.js'
 
 function mockPools(opts: { minimumDeposit: bigint; txns: TxData[] }) {
   return {
-    estimateShield: vi.fn(async () => ({ minimumDeposit: opts.minimumDeposit }) as unknown as PPv1ShieldEstimate),
+    estimateShield: vi.fn(
+      async () => ({ minimumDeposit: opts.minimumDeposit }) as unknown as PPv1ShieldEstimate,
+    ),
     prepareShield: vi.fn(async () => ({ txns: opts.txns })),
   } as unknown as Pools
 }
@@ -18,8 +20,13 @@ describe('planPpShield', () => {
     const pools = mockPools({ minimumDeposit: 5n, txns })
     const plan = await planPpShield(pools, 10n)
     expect(plan).toEqual({ txns, quote: { minimumDeposit: 5n }, amountWei: 10n })
-    const estimateOrder = (pools.estimateShield as unknown as ReturnType<typeof vi.fn>).mock.invocationCallOrder.at(0) ?? -1
-    const prepareOrder = (pools.prepareShield as unknown as ReturnType<typeof vi.fn>).mock.invocationCallOrder.at(0) ?? -1
+    const estimateOrder =
+      (pools.estimateShield as unknown as ReturnType<typeof vi.fn>).mock.invocationCallOrder.at(
+        0,
+      ) ?? -1
+    const prepareOrder =
+      (pools.prepareShield as unknown as ReturnType<typeof vi.fn>).mock.invocationCallOrder.at(0) ??
+      -1
     expect(estimateOrder).toBeLessThan(prepareOrder)
   })
 
@@ -48,7 +55,10 @@ describe('executePpShield', () => {
       sent.push(tx)
       return { hash: `0x${sent.length}` as const, status: 1n }
     })
-    const receipts = await executePpShield({ txns, quote: {} as PPv1ShieldEstimate, amountWei: 1n }, sendAndWait)
+    const receipts = await executePpShield(
+      { txns, quote: {} as PPv1ShieldEstimate, amountWei: 1n },
+      sendAndWait,
+    )
     expect(sent).toEqual(txns)
     expect(receipts).toEqual([
       { hash: '0x1', status: 1n },
@@ -62,7 +72,9 @@ describe('executePpShield', () => {
       .fn()
       .mockResolvedValueOnce({ hash: '0x1', status: 1n })
       .mockResolvedValueOnce({ hash: '0x2', status: 0n })
-    await expect(executePpShield({ txns, quote: {} as PPv1ShieldEstimate, amountWei: 1n }, sendAndWait)).rejects.toThrow(/reverted/)
+    await expect(
+      executePpShield({ txns, quote: {} as PPv1ShieldEstimate, amountWei: 1n }, sendAndWait),
+    ).rejects.toThrow(/reverted/)
     expect(sendAndWait).toHaveBeenCalledTimes(2)
   })
 })

@@ -51,7 +51,9 @@ describe('loadEnv', () => {
     process.env.SEPOLIA_RPC_URL = 'not-a-url'
     process.env.MNEMONIC = 'm'
     process.env.STORAGE_PASSWORD = 'p'
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(((() => undefined) as unknown) as typeof process.exit)
+    const exitSpy = vi
+      .spyOn(process, 'exit')
+      .mockImplementation((() => undefined) as unknown as typeof process.exit)
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const { loadEnv } = await import('../../src/config/env.js')
     loadEnv()

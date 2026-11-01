@@ -1,4 +1,4 @@
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
-  - '@kohaku-eth/poseidon-lean-imt@0.0.0'
+  - "@kohaku-eth/poseidon-lean-imt@0.0.0"

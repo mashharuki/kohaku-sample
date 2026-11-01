@@ -1,7 +1,7 @@
 import { sepolia } from 'viem/chains'
+import { makePublicWallet, makeSendAndWait } from '../chain/wallet.js'
 import { loadEnv } from '../config/env.js'
 import { PP_STORAGE_PATH } from '../config/paths.js'
-import { makePublicWallet, makeSendAndWait } from '../chain/wallet.js'
 import { makeHost, makeNodeProvider } from '../host/createHost.js'
 import { createPools } from '../privacy-pools/plugin.js'
 import { executePpShield, planPpShield } from '../privacy-pools/shield.js'
@@ -16,7 +16,13 @@ export async function runPpShield(opts: Options): Promise<void> {
 
   const provider = await makeNodeProvider({ rpcUrl: env.SEPOLIA_RPC_URL, chain: sepolia })
   const { address, signer } = makePublicWallet(env.MNEMONIC, sepolia, env.SEPOLIA_RPC_URL)
-  const host = makeHost({ provider, chain: sepolia, mnemonic: env.MNEMONIC, storagePath: PP_STORAGE_PATH, password: env.STORAGE_PASSWORD })
+  const host = makeHost({
+    provider,
+    chain: sepolia,
+    mnemonic: env.MNEMONIC,
+    storagePath: PP_STORAGE_PATH,
+    password: env.STORAGE_PASSWORD,
+  })
   const pools = createPools(host, 11155111)
 
   const plan = await planPpShield(pools, amountWei)
@@ -25,14 +31,18 @@ export async function runPpShield(opts: Options): Promise<void> {
   console.log(`vetting fee: ${formatWei(plan.quote.fee)} (bps=${plan.quote.vettingFeeBPS})`)
   console.log(`credited to note: ${formatWei(plan.quote.netAmount)}`)
   console.log(`minimum deposit: ${formatWei(plan.quote.minimumDeposit)}`)
-  console.log('(network gas for the deposit tx itself is on top of the above and is not shown here.)')
+  console.log(
+    '(network gas for the deposit tx itself is on top of the above and is not shown here.)',
+  )
 
   if (!opts.execute) {
     printDryRunNotice()
     return
   }
 
-  const ok = await confirmExecute(`About to deposit ${formatWei(plan.amountWei)} into Privacy Pools (Sepolia).`)
+  const ok = await confirmExecute(
+    `About to deposit ${formatWei(plan.amountWei)} into Privacy Pools (Sepolia).`,
+  )
   if (!ok) {
     console.log('Aborted.')
     return
@@ -41,5 +51,7 @@ export async function runPpShield(opts: Options): Promise<void> {
   const sendAndWait = makeSendAndWait(provider, signer)
   const receipts = await executePpShield(plan, sendAndWait)
   for (const r of receipts) console.log(`deposit tx confirmed: ${r.hash}`)
-  console.log('Done. Check `pp:balance` — it will likely show as pending until the ASP approves it.')
+  console.log(
+    'Done. Check `pp:balance` — it will likely show as pending until the ASP approves it.',
+  )
 }

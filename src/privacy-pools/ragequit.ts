@@ -22,7 +22,10 @@ export async function planRagequit(pools: Pools): Promise<RagequitPlan> {
   }
 }
 
-export async function executeRagequit(plan: RagequitPlan, sendAndWait: SendAndWait): Promise<{ hash: string; status: bigint }[]> {
+export async function executeRagequit(
+  plan: RagequitPlan,
+  sendAndWait: SendAndWait,
+): Promise<{ hash: string; status: bigint }[]> {
   const receipts = []
   for (const tx of plan.txns) {
     const r = await sendAndWait(tx)

@@ -42,7 +42,13 @@ export function makeEncryptedFileStorage(path: string, password: string): Storag
     const iv = randomBytes(12)
     const cipher = createCipheriv('aes-256-gcm', key, iv)
     const data = Buffer.concat([cipher.update(plain), cipher.final()])
-    const env: Envelope = { salt: salt.toString('base64'), iv: iv.toString('base64'), tag: cipher.getAuthTag().toString('base64'), data: data.toString('base64'), gzip }
+    const env: Envelope = {
+      salt: salt.toString('base64'),
+      iv: iv.toString('base64'),
+      tag: cipher.getAuthTag().toString('base64'),
+      data: data.toString('base64'),
+      gzip,
+    }
     const tmpPath = `${path}.tmp-${process.pid}-${Date.now()}`
     writeFileSync(tmpPath, JSON.stringify(env))
     renameSync(tmpPath, path)

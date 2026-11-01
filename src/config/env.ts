@@ -17,7 +17,9 @@ export function loadEnv(): Env {
   if (cached) return cached
   const result = EnvSchema.safeParse(process.env)
   if (!result.success) {
-    const issues = result.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n')
+    const issues = result.error.issues
+      .map((i) => `  - ${i.path.join('.')}: ${i.message}`)
+      .join('\n')
     console.error(`Invalid environment configuration (see .env.example):\n${issues}`)
     process.exit(1)
   }

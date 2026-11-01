@@ -1,8 +1,8 @@
-import { DepositStrategy } from '@kohaku-eth/tornado-cash'
 import type { TxData } from '@kohaku-eth/provider'
+import { DepositStrategy } from '@kohaku-eth/tornado-cash'
 import { describe, expect, it, vi } from 'vitest'
-import { executeTcShield, parseStrategy, planTcShield } from '../../src/tornado/shield.js'
 import type { Tornado } from '../../src/tornado/plugin.js'
+import { executeTcShield, parseStrategy, planTcShield } from '../../src/tornado/shield.js'
 
 describe('parseStrategy', () => {
   it('maps "minfee" and "maxanon" to the SDK enum values', () => {
@@ -38,7 +38,9 @@ describe('planTcShield', () => {
   it('passes the strategy through to prepareShield', async () => {
     const tornado = mockTornado([])
     await planTcShield(tornado, 1n, DepositStrategy.MaxAnonimitySet)
-    expect(tornado.prepareShield).toHaveBeenCalledWith(expect.anything(), { strategy: DepositStrategy.MaxAnonimitySet })
+    expect(tornado.prepareShield).toHaveBeenCalledWith(expect.anything(), {
+      strategy: DepositStrategy.MaxAnonimitySet,
+    })
   })
 })
 

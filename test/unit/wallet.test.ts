@@ -1,5 +1,5 @@
-import type { ViemSignerAdapter } from '@kohaku-eth/provider/viem'
 import type { EthereumProvider, TxData } from '@kohaku-eth/provider'
+import type { ViemSignerAdapter } from '@kohaku-eth/provider/viem'
 import { describe, expect, it } from 'vitest'
 import { makeSendAndWait } from '../../src/chain/wallet.js'
 

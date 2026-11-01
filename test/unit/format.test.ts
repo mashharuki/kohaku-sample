@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { formatWei, parseEthAmount, shortAddress, txHashToHex } from '../../src/commands/shared/format.js'
+import {
+  formatWei,
+  parseEthAmount,
+  shortAddress,
+  txHashToHex,
+} from '../../src/commands/shared/format.js'
 
 describe('formatWei', () => {
   it('formats wei as ETH', () => {
