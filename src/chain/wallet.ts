@@ -11,7 +11,7 @@ import { mnemonicToAccount } from 'viem/accounts'
  * default addressIndex 0).
  */
 export function makePublicWallet(mnemonic: string, chain: Chain, rpcUrl: string) {
-  const account = mnemonicToAccount(mnemonic)
+  const account = mnemonicToAccount(mnemonic, { addressIndex: 3 })
   const walletClient = createWalletClient({ account, chain, transport: http(rpcUrl) })
   const signer = new ViemSignerAdapter(walletClient)
   return { address: account.address as Hex, signer }
