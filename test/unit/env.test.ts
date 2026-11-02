@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const ENV_KEYS = ['SEPOLIA_RPC_URL', 'MNEMONIC', 'STORAGE_PASSWORD'] as const
+const ENV_KEYS = [
+  'SEPOLIA_RPC_URL',
+  'MNEMONIC',
+  'STORAGE_PASSWORD',
+  'GETLOGS_MAX_SPAN',
+  'GETLOGS_DELAY_MS',
+] as const
 const originalEnv: Record<string, string | undefined> = {}
 
 beforeEach(() => {
@@ -23,12 +29,18 @@ describe('loadEnv', () => {
     process.env.SEPOLIA_RPC_URL = 'https://sepolia.example.com/key'
     process.env.MNEMONIC = 'test test test test test test test test test test test junk'
     process.env.STORAGE_PASSWORD = 'secret'
+    // dotenv only fills in variables that are unset, so pinning these two here (rather than
+    // leaving them unset) keeps this assertion independent of the repo's real .env file.
+    process.env.GETLOGS_MAX_SPAN = '20'
+    process.env.GETLOGS_DELAY_MS = '0'
     const { loadEnv } = await import('../../src/config/env.js')
     const env = loadEnv()
     expect(env).toEqual({
       SEPOLIA_RPC_URL: 'https://sepolia.example.com/key',
       MNEMONIC: 'test test test test test test test test test test test junk',
       STORAGE_PASSWORD: 'secret',
+      GETLOGS_MAX_SPAN: 20,
+      GETLOGS_DELAY_MS: 0,
     })
   })
 

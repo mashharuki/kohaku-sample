@@ -1,6 +1,6 @@
 import type { EthereumProvider } from '@kohaku-eth/provider'
 import type { Filter } from 'ox/Filter'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { withChunkedGetLogs } from '../../src/host/chunkedProvider.js'
 
 function fakeProvider(headBlock: bigint) {
@@ -52,5 +52,37 @@ describe('withChunkedGetLogs', () => {
     const chunked = withChunkedGetLogs(provider, 499n)
     const logs = await chunked.getLogs({ fromBlock: 0n, toBlock: 1000n })
     expect(logs).toHaveLength(3)
+  })
+
+  describe('delayMs', () => {
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
+
+    it('does not delay before the first chunk', async () => {
+      const { provider, calls } = fakeProvider(100n)
+      const chunked = withChunkedGetLogs(provider, 499n, 1000)
+      await chunked.getLogs({ fromBlock: 0n, toBlock: 100n })
+      expect(calls).toHaveLength(1)
+    })
+
+    it('pauses delayMs between subsequent chunks', async () => {
+      const { provider, calls } = fakeProvider(1000n)
+      const chunked = withChunkedGetLogs(provider, 499n, 1000)
+
+      const pending = chunked.getLogs({ fromBlock: 0n, toBlock: 1000n })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(calls).toHaveLength(1) // first chunk: no delay
+
+      await vi.advanceTimersByTimeAsync(999)
+      expect(calls).toHaveLength(1) // still waiting out the delay before the 2nd chunk
+
+      await vi.advanceTimersByTimeAsync(1)
+      expect(calls).toHaveLength(2)
+
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(calls).toHaveLength(3)
+
+      await pending
+    })
   })
 })

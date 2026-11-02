@@ -66,4 +66,9 @@ program
   .option('--execute', 'actually send the ragequit transaction(s)', false)
   .action(runPpRagequit)
 
-await program.parseAsync(process.argv)
+try {
+  await program.parseAsync(process.argv)
+} catch (e) {
+  console.error(e instanceof Error ? e.message : String(e))
+  process.exitCode = 1
+}

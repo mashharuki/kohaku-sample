@@ -3,6 +3,7 @@ import type { EthereumProvider } from '@kohaku-eth/provider'
 import { viem } from '@kohaku-eth/provider/viem'
 import { type Chain, createPublicClient, http } from 'viem'
 import { assertSepoliaChainId } from '../chain/guard.js'
+import { loadEnv } from '../config/env.js'
 import { buildAllowedHosts } from './allowlist.js'
 import { withChunkedGetLogs } from './chunkedProvider.js'
 import { makeNetwork } from './network.js'
@@ -15,8 +16,20 @@ export type NodeProviderOptions = {
 
 /** Builds the chunked-getLogs provider and verifies its chainId once, shared by both plugin Hosts. */
 export async function makeNodeProvider(o: NodeProviderOptions): Promise<EthereumProvider> {
-  const rawProvider = viem(createPublicClient({ chain: o.chain, transport: http(o.rpcUrl) }))
-  const provider = withChunkedGetLogs(rawProvider)
+  const rawProvider = viem(
+    createPublicClient({
+      chain: o.chain,
+      // Retry transient failures (e.g. a free-tier RPC's rate limit, HTTP 429) harder than
+      // viem's default (3 retries / 150ms) before giving up.
+      transport: http(o.rpcUrl, { retryCount: 5, retryDelay: 500 }),
+    }),
+  )
+  const { GETLOGS_MAX_SPAN, GETLOGS_DELAY_MS } = loadEnv()
+  const provider = withChunkedGetLogs(
+    rawProvider,
+    GETLOGS_MAX_SPAN === undefined ? undefined : BigInt(GETLOGS_MAX_SPAN),
+    GETLOGS_DELAY_MS,
+  )
   await assertSepoliaChainId(provider)
   return provider
 }

@@ -2,6 +2,7 @@ import type { TxData } from '@kohaku-eth/provider'
 import { DepositStrategy } from '@kohaku-eth/tornado-cash'
 import { ethAmount } from '../assets/eth.js'
 import type { SendAndWait } from '../chain/wallet.js'
+import { toTornadoUserError } from './errors.js'
 import type { Tornado } from './plugin.js'
 
 export function parseStrategy(s: string): DepositStrategy {
@@ -19,9 +20,13 @@ export async function planTcShield(
   amountWei: bigint,
   strategy: DepositStrategy,
 ): Promise<ShieldPlan> {
-  const { txns } = await t.prepareShield(ethAmount(amountWei), { strategy })
-  const deposited = txns.reduce((sum, tx) => sum + tx.value, 0n)
-  return { txns, requested: amountWei, deposited, remainder: amountWei - deposited }
+  try {
+    const { txns } = await t.prepareShield(ethAmount(amountWei), { strategy })
+    const deposited = txns.reduce((sum, tx) => sum + tx.value, 0n)
+    return { txns, requested: amountWei, deposited, remainder: amountWei - deposited }
+  } catch (e) {
+    throw toTornadoUserError(e)
+  }
 }
 
 /** Sends the shield txs in order, awaiting each receipt before sending the next. */

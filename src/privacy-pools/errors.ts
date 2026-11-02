@@ -23,5 +23,24 @@ export function toPpUserError(e: unknown): Error {
     )
   }
   if (e instanceof PluginError) return e
-  return e instanceof Error ? e : new Error(String(e))
+  if (e instanceof Error) return e
+  return new Error(describeNonError(e))
+}
+
+/**
+ * Some SDK errors lose their Error prototype crossing a worker/WASM boundary and arrive here
+ * as a plain object — `String(e)` on those gives the useless "[object Object]". Prefer a
+ * `.message` field if present, otherwise fall back to a JSON dump so the cause is visible.
+ */
+function describeNonError(e: unknown): string {
+  if (e && typeof e === 'object' && 'message' in e)
+    return String((e as { message: unknown }).message)
+  if (e && typeof e === 'object') {
+    try {
+      return JSON.stringify(e)
+    } catch {
+      // fall through
+    }
+  }
+  return String(e)
 }
